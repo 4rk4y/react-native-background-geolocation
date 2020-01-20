@@ -28,6 +28,7 @@ static NSString *const EVENT_CONNECTIVITYCHANGE = @"connectivitychange";
 static NSString *const EVENT_ENABLEDCHANGE      = @"enabledchange";
 static NSString *const EVENT_NOTIFICATIONACTION = @"notificationaction";
 static NSString *const EVENT_AUTHORIZATION      = @"authorization";
+static NSString *const EVENT_STATUSCHANGE       = @"statuschange";
 
 @implementation RNBackgroundGeolocation {
     NSMutableDictionary *listeners;
@@ -147,7 +148,8 @@ RCT_EXPORT_MODULE();
         EVENT_CONNECTIVITYCHANGE,
         EVENT_ENABLEDCHANGE,
         EVENT_NOTIFICATIONACTION,
-        EVENT_AUTHORIZATION
+        EVENT_AUTHORIZATION,
+        EVENT_STATUSCHANGE
     ];
 }
 
@@ -303,11 +305,13 @@ RCT_EXPORT_METHOD(getState:(RCTResponseSenderBlock)callback failure:(RCTResponse
 /**
  * Turn on background geolocation
  */
-RCT_EXPORT_METHOD(start:(RCTResponseSenderBlock)success failure:(RCTResponseSenderBlock)failure)
+RCT_EXPORT_METHOD(start:(NSDictionary*)params/* success:(RCTResponseSenderBlock)success failure:(RCTResponseSenderBlock)failure*/) //chabot custom
 {
     dispatch_async(dispatch_get_main_queue(), ^{
         [self.locationManager start];
-        success(@[[self.locationManager getState]]);
+        //success(@[[self.locationManager getState]]);
+        printf("###sendEvent:statuschange:true");
+        [self sendEventWithName:@"statuschange" body:@{@"enabled": @YES}];
     });
 }
 /**
@@ -317,6 +321,8 @@ RCT_EXPORT_METHOD(stop:(RCTResponseSenderBlock)success failure:(RCTResponseSende
 {
     [locationManager stop];
     success(@[[locationManager getState]]);
+    printf("###sendEvent:statuschange:false");
+    [self sendEventWithName:@"statuschange" body:@{@"enabled": @NO}];
 }
 
 /**
@@ -705,6 +711,12 @@ RCT_EXPORT_METHOD(destroyTransistorToken:(NSString*)url success:(RCTResponseSend
 RCT_EXPORT_METHOD(playSound:(int)soundId)
 {
     [locationManager playSound: soundId];
+}
+
+//chabot custom
+RCT_EXPORT_METHOD(updateNotification:(NSDictionary*)params)
+{
+    NSLog(@"###updateNotification:params:%@", params);
 }
 
 -(void) sendEvent:(NSString*)event body:(id)body
