@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/rlNotiLayout"
+    android:layout_width="fill_parent"
+    android:layout_height="90dp"
+    android:padding="10dp"
+    android:paddingHorizontal="30dp"
+    >
+
+    <ImageView
+        android:id="@+id/imgNoti"
+        android:layout_width="53dp"
+        android:layout_height="fill_parent"
+        android:layout_alignParentLeft="true"
+        android:src="@drawable/noti_logo"
+        android:layout_alignParentStart="true"
+        android:layout_marginRight="10dp"
+        />
+
+    <LinearLayout
+        android:id="@+id/llNotiContents"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@+id/imgNoti"
+        android:layout_centerVertical="true"
+        android:orientation="vertical"
+        android:layout_marginLeft="1dp"
+        >
+
+        <TextView
+            android:id="@+id/tvCarName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/bluishGrey"
+            android:textSize="13sp"
+            android:text="2019 펠리세이드"
+            android:layout_marginLeft="0dp"
+            />
+
+        <TextView
+            android:id="@+id/tvDistance"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:layout_marginTop="0sp"
+            android:text="0Km"
+            android:lines="1"
+            android:textColor="@color/deepdarkGrey"
+            />
+    </LinearLayout>
+
+
+
+    <LinearLayout
+        android:id="@+id/llNotiButtons"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"
+        android:padding="5dp"
+        >
+
+        <Button
+            android:id="@+id/btnStartRecord"
+            android:layout_width="53dp"
+            android:layout_height="53dp"
+            android:textSize="12sp"
+            android:lineHeight="14sp"
+            android:text="기록\n시작"
+            android:background="@drawable/noti_circle_blue"
+            android:layout_marginRight="5dp"
+            android:textColor="@color/white"
+            style="?android:attr/borderlessButtonStyle"
+            />
+
+        <Button
+            android:id="@+id/btnStopRecord"
+            android:layout_width="53dp"
+            android:layout_height="53dp"
+            android:textSize="12sp"
+            android:lineHeight="14sp"
+            android:text="기록\n정지"
+            android:background="@drawable/noti_circle_red"
+            android:layout_marginRight="5dp"
+            android:textColor="@color/white"
+            style="?android:attr/borderlessButtonStyle"
+            />
+
+        <ImageButton
+            android:id="@+id/btnInsuCall"
+            android:layout_width="53dp"
+            android:layout_height="53dp"
+            android:layout_marginLeft="0.5dp"
+            android:textSize="10sp"
+            android:lineHeight="12sp"
+            android:src="@mipmap/noti_phone"
+            android:background="@drawable/noti_circle_gray"
+            android:cropToPadding="true"
+            android:padding="12.5dp"
+            android:scaleType="centerInside"
+            />
+    </LinearLayout>
+
+
+</RelativeLayout>

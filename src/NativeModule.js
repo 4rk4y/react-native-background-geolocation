@@ -154,16 +154,21 @@ export default class NativeModule {
       throw (TAG + "#addListener - Unknown event '" + event + "'");
     }
     let handler = (response) => {
+      console.log(`${TAG}:addListener:handler:${response}`);
+      console.log(`${TAG}:addListener:handler:${JSON.stringify(response)}`);
       if (response.hasOwnProperty("error") && (response.error != null)) {
+        console.log(`${TAG}:addListener:handler:error`);
         if (typeof(failure) === 'function') {
           failure(response.error);
         } else {
           console.warn(event + ' event error occurred without a failure callback handler: ', response);
         }
       } else {
+        console.log(`${TAG}:addListener:handler:success`);
         success(response);
       }
     }
+    console.log(`${TAG}:addListener:event-:${event}`);
     let subscription = new Subscription(EventEmitter.addListener(event, handler), success);
     EVENT_SUBSCRIPTIONS.push(subscription);
     RNBackgroundGeolocation.addEventListener(event);
@@ -207,12 +212,13 @@ export default class NativeModule {
     });
   }
 
-  static start() {
-    return new Promise((resolve, reject) => {
-      let success = (state)  => { resolve(state) }
-      let failure = (error)  => { reject(error) }
-      RNBackgroundGeolocation.start(success, failure);
-    });
+  static async start(params) {
+    // return new Promise((resolve, reject) => {
+    //   let success = (state)  => { resolve(state) }
+    //   let failure = (error)  => { reject(error) }
+    //   RNBackgroundGeolocation.start(success, failure);
+    // });
+    await RNBackgroundGeolocation.start(params);
   }
 
   static stop() {
@@ -509,4 +515,33 @@ export default class NativeModule {
   }
 
   static get logger() { return LOGGER; }
+
+  //chabot custom
+  static toast(msg) { 
+    RNBackgroundGeolocation.toast(msg); 
+  }
+
+  static async isLocationOn() { 
+    return await RNBackgroundGeolocation.isLocationOn(); 
+  }
+
+  static pause() {
+    return RNBackgroundGeolocation.pause();
+  }
+
+  static updateNotification(params) {
+    return RNBackgroundGeolocation.updateNotification(params);
+  }
+
+  static startBluetoothService(params) {
+    return RNBackgroundGeolocation.startBluetoothService(params);
+  }
+
+  static stopBluetoothService(params) {
+    return RNBackgroundGeolocation.stopBluetoothService(params);
+  }
+
+  static getPairedBluetoothList() {
+    return RNBackgroundGeolocation.getPairedBluetoothList();
+  }
 }

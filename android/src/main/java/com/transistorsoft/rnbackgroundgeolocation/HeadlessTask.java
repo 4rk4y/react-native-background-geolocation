@@ -1,6 +1,0 @@
-package com.transistorsoft.rnbackgroundgeolocation;
-
-
-public class HeadlessTask {
-  //test2
-}

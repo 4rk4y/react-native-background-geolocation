@@ -105,6 +105,7 @@ export default class BackgroundGeolocation {
   * Register HeadlessTask
   */
   static registerHeadlessTask(task) {
+    console.log('registerHeadlessTask:' + TAG);
     AppRegistry.registerHeadlessTask(TAG, () => task);
   }
 
@@ -228,6 +229,17 @@ export default class BackgroundGeolocation {
     this.addListener(Events.AUTHORIZATION, callback);
   }
 
+  //chabot custom
+  static onStatusChanged(callback) {
+    //this.addListener(Events.AUTHORIZATION, callback);
+    // EventEmitter.addListener('locationServiceStarted', (event) => {
+    //   console.log(TAG + ':locationServiceStarted:', event) 
+    //   DriveRecordStore.driveRecordEnabled = true;
+    // });
+    console.log(`${TAG}:onStatusChanged:add callback`);
+    this.addListener(Events.STATUSCHANGE, callback);
+  }
+  
   /**
   * Remove a single plugin event-listener, supplying a reference to the handler initially supplied to #un
   */
@@ -268,11 +280,14 @@ export default class BackgroundGeolocation {
   /**
   * Start the plugin
   */
-  static start(success, failure) {
+  static start(params, success, failure) {
+    //console.log(`${TAG}:start():arguments.length:${arguments.length}`)
+    console.log(TAG + ':start():arguments:', arguments);
     if (!arguments.length) {
-      return NativeModule.start();
+      //return NativeModule.start(params); //chabot custom
+      console.error('supply argement for start');
     } else {
-      NativeModule.start().then(success).catch(failure);
+      NativeModule.start(params).then(success).catch(failure);
     }
   }
   /**
@@ -664,6 +679,41 @@ export default class BackgroundGeolocation {
     return {
       device: deviceInfo
     };
+  }
+
+  //chabot custom 
+  static hasSoftKey() {
+    console.log(`${TAG}:hasSoftKey`);
+    return NativeModule.hasSoftKey();
+  }
+
+  static toast(msg) {
+    console.log(`${TAG}:toast`);
+    return NativeModule.toast(msg);
+  }
+
+  static async isLocationOn() {
+    return await NativeModule.isLocationOn();
+  }
+
+  static pause() {
+    return NativeModule.pause();
+  }
+
+  static updateNotification(params) {
+    return NativeModule.updateNotification(params);
+  }
+
+  static startBluetoothService(params) {
+    return NativeModule.startBluetoothService(params);
+  }
+
+  static stopBluetoothService(params) {
+    return NativeModule.stopBluetoothService(params);
+  }
+
+  static getPairedBluetoothList() {
+    return NativeModule.getPairedBluetoothList();
   }
 
   /**
