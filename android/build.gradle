@@ -44,6 +44,7 @@ dependencies {
 //    def eventBusVersion = safeExtGet('eventBusVersion', DEFAULT_EVENTBUS_VERSION)
 //
     implementation "com.facebook.react:react-native:${safeExtGet('reactNativeVersion', '+')}"
+    implementation "com.google.android.gms:play-services-location:17.0.0"
 //    // tslocationmanager.aar
 //    implementation fileTree(include: ['*.aar'], dir: 'libs')
 //
