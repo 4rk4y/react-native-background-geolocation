@@ -225,7 +225,7 @@ export default class NativeModule {
     return new Promise((resolve, reject) => {
       let success = (state)  => { resolve(state) }
       let failure = (error)  => { reject(error) }
-      RNBackgroundGeolocation.stop(success, failure);
+      RNBackgroundGeolocation.stop();
     });
   }
 
