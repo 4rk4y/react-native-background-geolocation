@@ -317,10 +317,10 @@ RCT_EXPORT_METHOD(start:(NSDictionary*)params/* success:(RCTResponseSenderBlock)
 /**
  * Turn it off
  */
-RCT_EXPORT_METHOD(stop:(RCTResponseSenderBlock)success failure:(RCTResponseSenderBlock)failure)
+RCT_EXPORT_METHOD(stop)
 {
     [locationManager stop];
-    success(@[[locationManager getState]]);
+    //success(@[[locationManager getState]]);
     printf("###sendEvent:statuschange:false");
     [self sendEventWithName:@"statuschange" body:@{@"enabled": @NO}];
 }
@@ -718,6 +718,24 @@ RCT_EXPORT_METHOD(updateNotification:(NSDictionary*)params)
 {
     NSLog(@"###updateNotification:params:%@", params);
 }
+
+RCT_EXPORT_METHOD(toast:(NSString*)msg)
+{
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:nil
+                                                                   message:msg
+                                                            preferredStyle:UIAlertControllerStyleAlert];
+//fimxe: need to impl.
+//https://stackoverflow.com/questions/18680891/displaying-a-message-in-ios-which-has-the-same-functionality-as-toast-in-android
+//    [self presentViewController:alert animated:YES completion:nil];
+//
+//    int duration = 2; // duration in seconds
+//
+//    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, duration * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+//        [alert dismissViewControllerAnimated:YES completion:nil];
+//    });
+}
+
+
 
 -(void) sendEvent:(NSString*)event body:(id)body
 {
