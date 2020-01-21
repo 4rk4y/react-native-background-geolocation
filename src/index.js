@@ -700,6 +700,10 @@ export default class BackgroundGeolocation {
     return NativeModule.pause();
   }
 
+  static showHideNotification(trueThenShow) {
+    return NativeModule.showHideNotification(trueThenShow);
+  }
+
   static updateNotification(params) {
     return NativeModule.updateNotification(params);
   }

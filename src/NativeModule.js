@@ -222,11 +222,7 @@ export default class NativeModule {
   }
 
   static stop() {
-    return new Promise((resolve, reject) => {
-      let success = (state)  => { resolve(state) }
-      let failure = (error)  => { reject(error) }
-      RNBackgroundGeolocation.stop();
-    });
+    RNBackgroundGeolocation.stop();
   }
 
   static startSchedule() {
@@ -527,6 +523,10 @@ export default class NativeModule {
 
   static pause() {
     return RNBackgroundGeolocation.pause();
+  }
+
+  static showHideNotification(trueThenShow) {
+    return RNBackgroundGeolocation.showHideNotification(trueThenShow);
   }
 
   static updateNotification(params) {
