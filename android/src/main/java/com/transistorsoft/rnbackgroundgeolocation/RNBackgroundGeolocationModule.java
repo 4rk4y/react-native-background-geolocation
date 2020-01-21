@@ -121,7 +121,9 @@ public class RNBackgroundGeolocationModule extends ReactContextBaseJavaModule {
     @ReactMethod
     public void stop() {
         Log.d(TAG,"stop()");
-        reactContext.stopService(new Intent(reactContext, LocationUpdatesService.class));
+        //killing service disables bluetooth auto connect
+        //reactContext.stopService(new Intent(reactContext, LocationUpdatesService.class));
+        pause();
     }
 
     @ReactMethod
@@ -136,6 +138,15 @@ public class RNBackgroundGeolocationModule extends ReactContextBaseJavaModule {
         WritableMap map = Arguments.createMap();
         map.putBoolean("isForeground", LocationUpdatesService.isForeground()); //apiResult isn't working well on recent android apis
         promise.resolve(map);
+    }
+
+    @ReactMethod
+    public void showHideNotification(boolean trueThenShow) {
+        Log.d(TAG,"showNotification:{}");
+
+        Intent intent = new Intent(reactContext, LocationUpdatesService.class);
+        intent.setAction(trueThenShow ? "showNotification" : "hideNotification");
+        reactContext.startService(intent);
     }
 
     @ReactMethod

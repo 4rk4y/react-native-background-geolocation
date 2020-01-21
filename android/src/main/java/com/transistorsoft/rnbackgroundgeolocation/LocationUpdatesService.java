@@ -24,6 +24,8 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothManager;
+import android.bluetooth.BluetoothProfile;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -58,6 +60,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import static android.app.PendingIntent.FLAG_UPDATE_CURRENT;
@@ -149,6 +152,10 @@ public class LocationUpdatesService extends Service {
     private static boolean mIsLocationOn = false; //notiifcation service is on but gps is not comming
     private double mMinDist = 15.0; //min update meter
 
+    private String mCarName = null;
+    private String mCarDist = null;
+    private String mBtnMode = null;
+
     private String mAutoConnectBluetoothAddr = null;
     private String mAutoConnectBluetoothName = null;
 
@@ -215,10 +222,10 @@ public class LocationUpdatesService extends Service {
         Log.d(TAG, "Bluetooth" + ":" + "registered");
     }
 
-    //private String mCarName, mCarDist;
-
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        int retVal = START_NOT_STICKY;
+
         String action = intent.getAction();
         Bundle params = intent.getExtras() != null ? intent.getExtras().getBundle("params") : null;
         Log.d(TAG,"onStartCommand:{action:" + action + "}");
@@ -240,13 +247,18 @@ public class LocationUpdatesService extends Service {
                 try {
                     mFusedLocationClient.requestLocationUpdates(mLocationRequest,
                             mLocationCallback, Looper.myLooper());
-                    startForeground(NOTIFICATION_ID,
-                            getNotification(
-                                    params.getString("carName"),
-                                    params.getString("carDist"),
-                                    params.getString("btnMode")
-                            ));
+
+                    mCarName = params.getString("carName");
+                    mCarDist = params.getString("carDist");
+                    mBtnMode = params.getString("btnMode");
                     mMinDist = params.getDouble("minDist");
+
+                    if (isForeground()) {
+                        mNotificationManager.notify(NOTIFICATION_ID, getNotification());
+                    } else {
+                        startForeground(NOTIFICATION_ID, getNotification());
+                    }
+
                     mLastLocation = null;
                     mIsForeground = true;
                     mIsLocationOn = true;
@@ -261,25 +273,82 @@ public class LocationUpdatesService extends Service {
         }
         else if(action.equals("pauseService")) {
             mIsLocationOn = false;
+
+            if(mLocationUpdateServiceCallback!=null)
+                mLocationUpdateServiceCallback.onStopped();
+            else
+                Log.e(TAG,"pauseService():mLocationUpdateServiceCallback is null");
+        }
+        else if(action.equals("showNotification"))
+        {
+            Log.d(TAG,"onStartCommand:showNotification:##0");
+            if (isForeground() || true) //duplicate run seems ok
+            {
+                Log.d(TAG,"onStartCommand:showNotification-:##1");
+                if(mCarName==null) {
+                    Log.d(TAG,"onStartCommand:showNotification:##2a");
+                    //cold start -> load default message
+                    startForeground(NOTIFICATION_ID,
+                            getNotification(
+                                    "선택된 차량이 없습니다.",
+                                    "0km",
+                                    "showStart"
+                            ));
+                } else {
+                    Log.d(TAG,"onStartCommand:showNotification:##2b");
+                    startForeground(NOTIFICATION_ID, getNotification());
+                }
+            } else {
+                Log.d(TAG,"onStartCommand:showNotification:service already started");
+            }
         }
         else if(action.equals("updateNotification"))
         {
-            if (serviceIsRunningInForeground(this)) {
-                mNotificationManager.notify(NOTIFICATION_ID, getNotification(
-                        params.getString("carName"),
-                        params.getString("carDist"),
-                        params.getString("btnMode")
-                ));
+            if (isForeground()) {
+                mCarName = params.getString("carName");
+                mCarDist = params.getString("carDist");
+                mBtnMode = params.getString("btnMode");
+
+                mNotificationManager.notify(NOTIFICATION_ID, getNotification());
+            }
+        }
+        else if(action.equals("hideNotification"))
+        {
+            //if (isForeground())
+            {
+                stopService(new Intent(this, LocationUpdatesService.class));
             }
         }
         else if(action.equals("startBluetooth"))
         {
+            if(mBondingBroadcastReceiver!=null) {
+                Log.d(TAG,"[BTAutoConn]startBluetooth:is already running");
+                return retVal;
+            }
             mAutoConnectBluetoothAddr = params.getString("bluetoothAddr");
             mAutoConnectBluetoothName = params.getString("bluetoothName");
+
             Log.d(TAG,"[BTAutoConn]startBluetooth:"
                     + mAutoConnectBluetoothAddr + "/" + mAutoConnectBluetoothName);
 
             initBluetoothService();
+
+            //jw, try auto connect but not working
+            //maybe neet to change .GATT part to matching Android Auto...
+//            BluetoothManager bluetoothManager = (BluetoothManager) this.getSystemService(Context.BLUETOOTH_SERVICE);
+//            List<BluetoothDevice> devices = bluetoothManager.getConnectedDevices(BluetoothProfile.GATT); //HEADSET not supported
+//
+//            Log.d(TAG,"[BTAutoConn]startBluetooth:getConnectedDevices:" + devices.size());
+//            for(BluetoothDevice device : devices) {
+//                Log.d(TAG,"[BTAutoConn]getConnectedDevices:"
+//                        + device.getName() + "/" + mAutoConnectBluetoothName);
+//                if(device.getName().equals(mAutoConnectBluetoothName)) {
+//                    Log.d(TAG,"[BTAutoConn]getConnectedDevices: -> invoke startRecord");
+//                    intent = new Intent(this, LocationHeadlessTask.class);
+//                    intent.putExtra("notiBtnClick", "startRecord");
+//                    this.startService(intent);
+//                }
+//            }
         }
         else if(action.equals("stopBluetooth"))
         {
@@ -312,7 +381,7 @@ public class LocationUpdatesService extends Service {
             Log.d(TAG,"[BTAutoConn]getPairedBluetoothList:rec.send");
         }
 
-        return START_NOT_STICKY;
+        return retVal;
     }
 
 
@@ -376,10 +445,11 @@ public class LocationUpdatesService extends Service {
             mIsForeground = false;
             mIsLocationOn = false;
 
-            if(mLocationUpdateServiceCallback!=null)
-                mLocationUpdateServiceCallback.onStopped();
-            else
-                Log.e(TAG,"onDestroy():mLocationUpdateServiceCallback is null");
+            //settingbar -> remove foreground servece should not call addhistory
+//            if(mLocationUpdateServiceCallback!=null)
+//                mLocationUpdateServiceCallback.onStopped();
+//            else
+//                Log.e(TAG,"onDestroy():mLocationUpdateServiceCallback is null");
 
         } catch (SecurityException unlikely) {
             //Utils.setRequestingLocationUpdates(this, true);
@@ -411,6 +481,9 @@ public class LocationUpdatesService extends Service {
     }
 
 
+    private Notification getNotification() {
+        return getNotification(mCarName, mCarDist, mBtnMode);
+    }
     /**
      * Returns the {@link NotificationCompat} used as part of the foreground service.
      */
@@ -648,7 +721,9 @@ public class LocationUpdatesService extends Service {
                 final int bondState = intent.getIntExtra(BluetoothDevice.EXTRA_BOND_STATE, -1);
                 final int previousBondState = intent.getIntExtra(BluetoothDevice.EXTRA_PREVIOUS_BOND_STATE, -1);
 
-                Log.d(TAG, "[BTAutoConnn]onReceive:action:" + intent.getAction() + ":Bond state changed for: " + device.getName() + " new state: " + bondState + " previous: " + previousBondState);
+                String deviceName = device.getName();
+
+                Log.d(TAG, "[BTAutoConnn]onReceive:action:" + intent.getAction() + ":Bond state changed for: " + device.getName() + " new state: " + bondState + " previous: " + previousBondState + " name:" + deviceName);
                 Log.d(TAG, "[BTAutoConnn]onReceive:target:" + mAutoConnectBluetoothAddr + "/" + mAutoConnectBluetoothName);
 
 
@@ -656,7 +731,6 @@ public class LocationUpdatesService extends Service {
                 //if (!device.getAddress().equals(mBluetoothGatt.getDevice().getAddress()))
                 //return;
 
-                String deviceName = device.getName();
 
                 //            public static final int BOND_BONDED = 12;
                 //            public static final int BOND_BONDING = 11;
