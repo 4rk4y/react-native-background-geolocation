@@ -712,8 +712,8 @@ export default class BackgroundGeolocation {
     return NativeModule.startBluetoothService(params);
   }
 
-  static stopBluetoothService(params) {
-    return NativeModule.stopBluetoothService(params);
+  static stopBluetoothService() {
+    return NativeModule.stopBluetoothService();
   }
 
   static getPairedBluetoothList() {
