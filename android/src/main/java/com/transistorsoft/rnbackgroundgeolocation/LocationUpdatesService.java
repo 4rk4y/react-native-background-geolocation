@@ -345,7 +345,7 @@ public class LocationUpdatesService extends Service {
 //                if(device.getName().equals(mAutoConnectBluetoothName)) {
 //                    Log.d(TAG,"[BTAutoConn]getConnectedDevices: -> invoke startRecord");
 //                    intent = new Intent(this, LocationHeadlessTask.class);
-//                    intent.putExtra("notiBtnClick", "startRecord");
+//                    intent.putExtra("bluetoothEvent", "startRecord");
 //                    this.startService(intent);
 //                }
 //            }
@@ -748,7 +748,7 @@ public class LocationUpdatesService extends Service {
                         //call app by intent and press start button
                         //deep link...
                         Intent _intent = new Intent(context, LocationHeadlessTask.class);
-                        _intent.putExtra("notiBtnClick", "startRecord");
+                        _intent.putExtra("bluetoothEvent", "startRecord");
                         context.startService(_intent);
                         Log.d(TAG, "[BTAutoConnn]onReceive:connected->call startRecord");
                     } else {
@@ -759,7 +759,7 @@ public class LocationUpdatesService extends Service {
                 if (intent.getAction().equals(BluetoothDevice.ACTION_ACL_DISCONNECTED)) {
                     if (deviceName.equals(mAutoConnectBluetoothName)) {
                         Intent _intent = new Intent(context, LocationHeadlessTask.class);
-                        _intent.putExtra("notiBtnClick", "stopRecord");
+                        _intent.putExtra("bluetoothEvent", "stopRecord");
                         context.startService(_intent);
 
                         Log.d(TAG, "[BTAutoConnn]onReceive:disconnected:pauseService");
